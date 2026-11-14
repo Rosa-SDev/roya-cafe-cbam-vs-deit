@@ -1,0 +1,27 @@
+# Valores comunes a TODAS las configuraciones. Cada YAML de configuración
+# sobrescribe solo lo que cambia (modelo y optimización).
+data:
+  image_size: 224          # entrada de los modelos
+  num_workers: 2           # vCPU de Colab
+augment:                   # solo en entrenamiento; NO se altera el tono (hue)
+  rrc_scale: [0.7, 1.0]    # RandomResizedCrop
+  rotation_deg: 20
+  brightness: 0.2          # ColorJitter suave
+  contrast: 0.2
+train:
+  batch_size: 32
+  optimizer: adamw
+  amp: true                # precisión mixta (solo en GPU)
+  warmup_epochs: 5         # warmup lineal; luego coseno
+  min_lr_ratio: 0.01       # lr final = 1 % del inicial
+  patience: 15             # early stopping, contado después del warmup
+  grad_clip: null
+  class_weights: balanced  # N / (K * n_c), solo con el conjunto de entrenamiento
+  deterministic: true
+eval:
+  bootstrap_reps: 2000
+  inference_timing_iters: 100
+interpret:
+  enabled: true
+  map_size: 56             # resolución a la que se guardan los mapas de ejemplo
+  examples_per_class: 2
