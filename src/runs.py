@@ -1,22 +1,19 @@
-"""Lista global de corridas, reparto entre integrantes y cola reanudable.
+"""Lista global de corridas, selección por experimento y semillas, y cola reanudable.
 
 Uso:
-    python -m src.runs --status                       # avance global
-    python -m src.runs --member rosa                  # lista las corridas de Rosa
-    python -m src.runs --member rosa --execute        # las ejecuta (omite las hechas)
-    python -m src.runs --member daniel --execute --experiment E1   # solo E1
-    python -m src.runs --benchmark                    # mide s/época en esta GPU y estima totales
+    python -m src.runs --status                                  # avance por experimento
+    python -m src.runs --experiment E1 --seeds 0-3               # lista esas corridas
+    python -m src.runs --experiment E1 --seeds 0-3 --execute     # las ejecuta (omite las hechas)
+    python -m src.runs --experiment E1,E3 --execute              # varios experimentos
+    python -m src.runs --execute                                 # todas las pendientes (69)
+    python -m src.runs --benchmark                               # mide s/época en esta GPU y estima totales
 
 Cada corrida se ejecuta en un subproceso (python -m src.train ...). Si una
 falla, se registra y la cola sigue. Como train.py omite las corridas cuyo JSON
-ya existe, basta volver a lanzar el mismo comando tras una desconexión.
+ya existe, basta volver a lanzar el mismo comando tras una interrupción.
 
-Reparto (estimación previa en T4; ver docs/decisiones.md). En E3 se igualan
-los pasos de optimización, así que cada corrida de E3 cuesta lo mismo que su
-equivalente de E1:
-    rosa:   E1 semillas 0-1 + E3 semilla 0   (~2,5 h)
-    yaiza:  E1 semillas 2-3 + E3 semilla 1   (~2,5 h)
-    daniel: E1 semilla 4   + E2 completo    (~2,6 h)
+En E3 se igualan los pasos de optimización, así que cada corrida de E3 cuesta
+lo mismo que su equivalente de E1.
 """
 from __future__ import annotations
 
@@ -55,20 +52,41 @@ def all_runs() -> list[dict]:
     return runs
 
 
-ASSIGNMENT = {
-    "rosa": lambda r: (r["experiment"] == "E1" and r["seed"] in (0, 1)) or (r["experiment"] == "E3" and r["seed"] == 0),
-    "yaiza": lambda r: (r["experiment"] == "E1" and r["seed"] in (2, 3)) or (r["experiment"] == "E3" and r["seed"] == 1),
-    "daniel": lambda r: (r["experiment"] == "E1" and r["seed"] == 4) or r["experiment"] == "E2",
-}
+EXPERIMENTS = ["E1", "E2", "E3"]
 
 
-def runs_for(member: str) -> list[dict]:
-    """Corridas de un integrante o de varios separados por coma ("rosa,yaiza")."""
-    members = [m.strip() for m in member.split(",")]
-    unknown = [m for m in members if m not in ASSIGNMENT]
+def parse_seeds(text: str | None) -> list[int] | None:
+    """"0-3" -> [0, 1, 2, 3]; "0,2,4" -> [0, 2, 4]; "4" -> [4]; None -> None (todas)."""
+    if text is None:
+        return None
+    seeds: list[int] = []
+    for part in str(text).split(","):
+        part = part.strip()
+        try:
+            if "-" in part:
+                lo, hi = (int(x) for x in part.split("-", 1))
+                if lo > hi:
+                    raise ValueError
+                seeds += range(lo, hi + 1)
+            else:
+                seeds.append(int(part))
+        except ValueError:
+            raise SystemExit(f"Semillas no válidas: {text!r} (ejemplos: 0-3, 0,2,4, 4)") from None
+    return sorted(set(seeds))
+
+
+def select_runs(experiments: str | list[str] | None = None, seeds: list[int] | None = None) -> list[dict]:
+    """Corridas filtradas por experimento ("E1", "E1,E3" o lista) y por semillas (None = todas)."""
+    if isinstance(experiments, str):
+        experiments = [e.strip().upper() for e in experiments.split(",") if e.strip()]
+    unknown = sorted(set(experiments or []) - set(EXPERIMENTS))
     if unknown:
-        raise SystemExit(f"Integrante desconocido: {unknown}. Opciones: {sorted(ASSIGNMENT)}")
-    return [r for r in all_runs() if any(ASSIGNMENT[m](r) for m in members)]
+        raise SystemExit(f"Experimento desconocido: {unknown}. Opciones: {EXPERIMENTS}")
+    runs = [r for r in all_runs() if (not experiments or r["experiment"] in experiments)
+            and (seeds is None or r["seed"] in seeds)]
+    if not runs:
+        raise SystemExit(f"Ninguna corrida con experimento {experiments or 'todos'} y semillas {seeds}")
+    return runs
 
 
 def result_path(results_root: Path, run: dict) -> Path:
@@ -77,13 +95,6 @@ def result_path(results_root: Path, run: dict) -> Path:
 
 def estimated_minutes(runs: list[dict]) -> float:
     return sum(EST_MINUTES[r["config"]] for r in runs)
-
-
-def check_assignment() -> None:
-    """Cada corrida asignada exactamente a un integrante."""
-    for r in all_runs():
-        owners = [m for m, f in ASSIGNMENT.items() if f(r)]
-        assert len(owners) == 1, f"{r['name']} ({r['experiment']}) asignada a {owners}"
 
 
 def execute(runs: list[dict], data_root: Path, results_root: Path, extra: list[str]) -> None:
@@ -149,55 +160,51 @@ def benchmark(data_root: Path, out_root: Path, epochs: int = 2) -> dict[str, flo
     for c in E2_CONFIGS:
         minutes[c] = minutes["cnn_cbam_scratch"]
     total = 0.0
-    for member in sorted(ASSIGNMENT):
-        m = sum(minutes[r["config"]] for r in runs_for(member))
+    for exp in EXPERIMENTS:
+        m = sum(minutes[r["config"]] for r in select_runs(exp))
         total += m
-        print(f"{member}: ~{m / 60:.1f} h")
+        print(f"{exp}: ~{m / 60:.1f} h")
     print(f"Total: ~{total / 60:.1f} h de GPU (cota superior, sin early stopping)")
     return minutes
 
 
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--member", help="rosa | yaiza | daniel, o varios: rosa,yaiza")
-    parser.add_argument("--experiment", help="Filtrar por experimento (E1, E2, E3)")
+    parser.add_argument("--experiment", help="E1, E2, E3 o varios separados por coma (por defecto, todos)")
+    parser.add_argument("--seeds", help="Semillas: rango 0-3, lista 0,2,4 o una sola (por defecto, todas)")
     parser.add_argument("--execute", action="store_true")
-    parser.add_argument("--status", action="store_true", help="Avance de todas las corridas")
+    parser.add_argument("--status", action="store_true", help="Avance de las corridas seleccionadas")
     parser.add_argument("--benchmark", action="store_true", help="Medir tiempos en esta GPU")
     parser.add_argument("--bench-epochs", type=int, default=2)
     parser.add_argument("--data-root")
     parser.add_argument("--results-root")
     args, extra = parser.parse_known_args(argv)
-    check_assignment()
-
-    runs = runs_for(args.member) if args.member else all_runs()
-    if args.experiment:
-        runs = [r for r in runs if r["experiment"] == args.experiment]
 
     if args.benchmark:
         benchmark(resolve_dir(args.data_root, "ROCOLE_DATA_ROOT", "datos"),
                   Path(args.results_root or "bench_results"), args.bench_epochs)
         return
 
-    results_root = Path(args.results_root) if args.results_root else None
+    runs = select_runs(args.experiment, parse_seeds(args.seeds))
     if args.execute:
-        if not args.member:
-            raise SystemExit("--execute requiere --member")
         execute(runs, resolve_dir(args.data_root, "ROCOLE_DATA_ROOT", "datos"),
                 resolve_dir(args.results_root, "ROCOLE_RESULTS_ROOT", "resultados"), extra)
         return
 
-    if args.status:
+    results_root = None
+    if args.status or args.results_root:
         results_root = resolve_dir(args.results_root, "ROCOLE_RESULTS_ROOT", "resultados")
-    for member in ([args.member] if args.member else sorted(ASSIGNMENT)):
-        mine = [r for r in runs if r in runs_for(member)]
+    for exp in EXPERIMENTS:
+        mine = [r for r in runs if r["experiment"] == exp]
+        if not mine:
+            continue
         done = sum(result_path(results_root, r).exists() for r in mine) if results_root else 0
-        print(f"{member}: {len(mine)} corridas, ~{estimated_minutes(mine) / 60:.1f} h estimadas"
+        print(f"{exp}: {len(mine)} corridas, ~{estimated_minutes(mine) / 60:.1f} h estimadas"
               + (f", {done} hechas" if results_root else ""))
-        if args.member:
-            for r in mine:
-                mark = "x" if results_root and result_path(results_root, r).exists() else " "
-                print(f"  [{mark}] {r['experiment']} {r['name']}")
+    if args.experiment or args.seeds:
+        for r in runs:
+            mark = "x" if results_root and result_path(results_root, r).exists() else " "
+            print(f"  [{mark}] {r['experiment']} {r['name']}")
 
 
 if __name__ == "__main__":

@@ -43,8 +43,16 @@ def test_fraction_scales_schedule():
     assert abs(s["total_steps"] - full["total_steps"]) / full["total_steps"] < 0.1
 
 
-def test_assignment_covers_every_run_once():
-    from src.runs import all_runs, check_assignment, runs_for
-    check_assignment()
-    total = sum(len(runs_for(m)) for m in ["rosa", "yaiza", "daniel"])
-    assert total == len(all_runs()) == 30 + 15 + 24
+def test_select_runs():
+    import pytest
+    from src.runs import all_runs, parse_seeds, select_runs
+    assert len(all_runs()) == len(select_runs()) == 30 + 15 + 24
+    assert len(select_runs("E1", parse_seeds("0-3"))) == 24
+    assert len(select_runs("E2")) == 15
+    assert len(select_runs("E1,E3")) == 54
+    assert {r["seed"] for r in select_runs("E1", [4])} == {4}
+    assert parse_seeds("0-3") == [0, 1, 2, 3] and parse_seeds("4,0,2") == [0, 2, 4] and parse_seeds(None) is None
+    with pytest.raises(SystemExit):
+        select_runs("E9")
+    with pytest.raises(SystemExit):
+        parse_seeds("3-1")

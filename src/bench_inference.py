@@ -15,10 +15,10 @@ sin lectura de imágenes ni preprocesamiento. cuDNN se usa en modo benchmark
 (elige el algoritmo más rápido), como en un despliegue.
 
 Protecciones (se saltan con --force):
-- No arranca si la cola local sigue viva (logs/cola_local.pid) o si falta alguna
-  corrida de rosa/yaiza, para no alterar los tiempos de entrenamiento.
-- En Windows exige que el portátil esté conectado al cargador y registra el
-  plan de energía activo.
+- No arranca si hay una cola de entrenamiento en curso (logs/cola_local.pid) o
+  si falta alguna de las 69 corridas, para no medir con la GPU ocupada.
+- En Windows exige alimentación de red (no batería) y registra el plan de
+  energía activo.
 
 Salidas: OUT/inferencia_rtx3050.csv (datos crudos con GPU, versiones y energía)
 y OUT/tabla_inferencia.{csv,tex}.
@@ -37,7 +37,7 @@ import pandas as pd
 import torch
 
 from .models.factory import build_model, count_parameters
-from .runs import MAIN_CONFIGS, result_path, runs_for
+from .runs import MAIN_CONFIGS, all_runs, result_path
 from .utils import CONFIG_DIR, REPO_ROOT, environment_info, load_config, run_name
 
 
@@ -82,13 +82,14 @@ def power_status() -> dict:
 def check_ready(results_root: Path, force: bool) -> None:
     problems = []
     if queue_alive(REPO_ROOT / "logs" / "cola_local.pid"):
-        problems.append("la cola local de entrenamiento sigue corriendo")
-    missing = [r["name"] for r in runs_for("rosa,yaiza") if not result_path(results_root, r).exists()]
+        problems.append("la cola de entrenamiento sigue corriendo")
+    expected = all_runs()
+    missing = [r["name"] for r in expected if not result_path(results_root, r).exists()]
     if missing:
-        problems.append(f"faltan {len(missing)} corridas locales (p. ej. {missing[0]})")
+        problems.append(f"faltan {len(missing)} de las {len(expected)} corridas (p. ej. {missing[0]})")
     power = power_status()
     if power["ac_power"] is False:
-        problems.append("el portátil está con batería; conéctalo al cargador")
+        problems.append("el equipo está con batería; conéctalo a la red")
     if problems and not force:
         raise SystemExit("No se lanza el benchmark: " + "; ".join(problems) + ". (--force para ignorar)")
 

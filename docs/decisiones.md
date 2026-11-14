@@ -2,7 +2,7 @@
 
 Proyecto final de Inteligencia Artificial 2026B (Universidad de Ibagué) · Rosa Peña, Yaiza Sanchez, Daniel Vanegas.
 
-Este documento registra qué se verificó en los datos, qué se decidió y por qué. Los párrafos marcados con **[artículo]** están redactados para copiarse a la sección de Materiales y Métodos con cambios mínimos. Todos los números de esta página provienen de ejecuciones reales sobre los datos (no son resultados de modelos; esos se generan con `notebooks/02_resultados.ipynb`).
+Este documento registra qué se verificó en los datos, qué se decidió y por qué. Todos los números de esta página provienen de ejecuciones reales sobre los datos (no son resultados de modelos; esos se generan con `notebooks/02_resultados.ipynb`).
 
 ---
 
@@ -33,7 +33,7 @@ Se usa `RoCoLE-json.json`: un registro por imagen con `External ID` (nombre del 
 
 La etiqueta binaria del propio dataset (`Binary.Label`) marca como *unhealthy* las 769 imágenes que no son *healthy*, incluido el ácaro rojo. La métrica binaria sana/enferma sigue esa misma convención.
 
-### 1.4 Identificación de la planta **[artículo]**
+### 1.4 Identificación de la planta
 
 > El identificador de la planta se obtuvo del nombre de cada archivo, que sigue el patrón `C<lote>P<planta><vista>.jpg`, donde la vista es una de H1, H2, E1 o E2 (por ejemplo, `C10P10E1.jpg`). Con este patrón se identificaron 390 plantas distribuidas en 12 lotes (entre 30 y 37 plantas por lote), cada una con exactamente cuatro imágenes, lo que coincide con la descripción del conjunto de datos. Un único archivo, `C11P11HE.jpg`, no sigue el patrón; corresponde a la vista H2 de la planta C11P11, la única que carecía de ella, y se trató como tal.
 
@@ -41,13 +41,13 @@ Notas internas:
 - No se sabe con certeza qué significan H y E (posiblemente haz y envés); no hace falta para partir por planta.
 - **La clase es de la imagen, no de la planta:** 379 de las 390 plantas tienen fotos de más de una clase (la combinación más común es healthy + rust_level_1). Las vistas H1 y E1 son mayoritariamente sanas (299 y 297 de 390), mientras que H2 y E2 concentran las enfermas.
 
-### 1.5 Orientación EXIF **[artículo]**
+### 1.5 Orientación EXIF
 
 > Todas las fotografías incluyen la etiqueta EXIF de orientación (valor 6 en 1 501 imágenes y 8 en 59), pero los polígonos de Labelbox están expresados en las coordenadas del JPEG almacenado, sin aplicar esa rotación. Se verificó superponiendo los polígonos sobre imágenes de ambas orientaciones. Por ello, las imágenes se leyeron sin aplicar la rotación EXIF, de modo que imagen y máscara quedaran alineadas.
 
 Implementación: `src/data.py` nunca llama a `ImageOps.exif_transpose`; `tests/test_data.py::test_exif_not_applied` lo verifica. Ojo: los visores de imágenes sí aplican el EXIF y muestran las fotos verticales.
 
-### 1.6 Resolución y redimensionado **[artículo]**
+### 1.6 Resolución y redimensionado
 
 > Las imágenes tienen tres resoluciones, todas con relación de aspecto 16:9: 2048×1152 (768), 1280×720 (479) y 4128×2322 (313). Como la hoja suele estar alargada en horizontal y ocupa en promedio el 26 % del área de la imagen (área del polígono), recortar el centro para obtener un cuadrado eliminaría las puntas de la hoja. Por ello, cada imagen se redimensionó directamente a un cuadrado, deformando la relación de aspecto, y la máscara de la hoja se rasterizó a partir del polígono con la misma transformación. Para el entrenamiento se generó una única vez una versión de 256×256 píxeles de cada imagen y de su máscara; los modelos reciben entradas de 224×224.
 
@@ -78,7 +78,7 @@ Lectura: la proporción de sanas es casi constante (~50 % en cada lote), pero el
 
 ## 2. Partición
 
-### 2.1 Algoritmo **[artículo]**
+### 2.1 Algoritmo
 
 > Las imágenes se dividieron por planta, de modo que las cuatro fotografías de una planta pertenecen a un único conjunto. Como la clase se asigna por imagen y la mayoría de las plantas tiene fotografías de varias clases, no es posible una estratificación exacta. Se generaron 20 000 permutaciones aleatorias de las 390 plantas (semilla 42), cada una se cortó en 70 %, 15 % y 15 % de las plantas, y se eligió la que minimizaba la mayor desviación absoluta entre la proporción de cada clase en cada conjunto y la proporción objetivo. La desviación máxima resultante fue de 1,9 puntos porcentuales.
 
@@ -129,7 +129,7 @@ La partición está en `data/splits/split.csv` (versionada) y la usan todos los 
 
 Cuatro bloques [Conv3×3 → BatchNorm → ReLU] ×2 con 32, 64, 128 y 256 canales, cada uno seguido de MaxPool 2×2; Global Average Pooling, Dropout 0,3 y capa lineal. Convoluciones sin sesgo (lo absorbe BatchNorm), inicialización de Kaiming. 1,17 M de parámetros, dentro del rango pedido; no se propusieron cambios.
 
-### 4.3 CBAM **[artículo]**
+### 4.3 CBAM
 
 > Se implementó CBAM siguiendo a Woo et al. (2018). La atención de canal aplica un perceptrón multicapa compartido (C → C/16 → C con ReLU) a los vectores obtenidos por *average-pooling* y *max-pooling* espaciales, suma ambas salidas y aplica una sigmoide. La atención espacial concatena la media y el máximo a lo largo de los canales, aplica una convolución 7×7 y una sigmoide. Ambas se aplican en secuencia (primero canal y luego espacial) multiplicando el mapa de características. En la CNN propia, CBAM se insertó al final de cada bloque convolucional, antes del *max-pooling*.
 
@@ -159,7 +159,7 @@ Ajustes aprobados respecto a la propuesta original:
 - **Weight decay de las CNN 0,01 (antes 1e-4):** en AdamW el decaimiento es desacoplado y se multiplica por el lr en cada paso, así que 1e-4 no tiene efecto práctico.
 - **Sin weight decay** en sesgos, parámetros de BatchNorm/LayerNorm, `cls_token` y `pos_embed`.
 
-### 5.1 E3: se igualan los pasos de optimización **[artículo]**
+### 5.1 E3: se igualan los pasos de optimización
 
 > En los experimentos con el 25 % y el 50 % de los datos de entrenamiento se mantuvo constante el número de pasos de optimización en lugar del número de épocas: las épocas, el warmup, la paciencia y la frecuencia de validación se multiplicaron por el inverso de la fracción (por ejemplo, 240 épocas con validación cada 4 para un modelo entrenado desde cero con el 25 %). Así, las diferencias reflejan la cantidad de datos y no una menor duración del entrenamiento, y el número de evaluaciones en validación, es decir, de oportunidades de seleccionar el checkpoint, es el mismo en todas las fracciones.
 
@@ -176,22 +176,22 @@ Semillas fijadas en Python, NumPy y PyTorch (también en cada worker del DataLoa
 - Parámetros, tiempo de entrenamiento e inferencia: ver 6.2 (los tiempos del artículo se miden en una sola GPU).
 - Agregación: media ± desviación estándar entre semillas.
 
-### 6.1 Bootstrap por planta **[artículo]**
+### 6.1 Bootstrap por planta
 
 > Los intervalos de confianza del 95 % se obtuvieron por bootstrap de percentiles con 2 000 réplicas, remuestreando plantas del conjunto de prueba con reemplazo (cada planta aporta todas sus imágenes), ya que las cuatro fotografías de una planta no son independientes. En cada réplica se calculó la métrica para cada semilla y se promedió entre semillas. Para comparar configuraciones se usaron las mismas réplicas en ambas, lo que da intervalos de diferencias pareadas.
 
 ---
 
-### 6.2 Tiempos: una sola GPU **[artículo]**
+### 6.2 Tiempos: una sola GPU
 
 Las corridas se repartieron entre una GPU local (NVIDIA GeForce RTX 3050 6 GB Laptop, CUDA 13.2, PyTorch 2.15) y Google Colab (Tesla T4). Las métricas de clasificación se agregan con las 5 semillas sin importar la GPU (la GPU no cambia qué se aprende, solo cuánto tarda). Los tiempos, en cambio, solo son comparables en la misma GPU, así que:
 
 > Los tiempos de entrenamiento se reportan como media ± desviación estándar sobre las corridas de E1 con semillas 0 a 3, todas ejecutadas en una NVIDIA GeForce RTX 3050 6 GB Laptop GPU. Se reporta el tiempo total de entrenamiento (con *early stopping*) y el tiempo de una época en régimen estable, definido como la mediana de los segundos por época excluyendo la primera, que incluye el arranque. Cada época incluye entrenamiento y validación. La inferencia se midió por separado en la misma GPU, con los modelos de la semilla 0, sobre tensores aleatorios de 3×224×224 (sin lectura ni preprocesamiento de imágenes): latencia con lote 1 (mediana de 200 pasadas tras 50 de calentamiento) y throughput con lote 32 (50 lotes tras 10 de calentamiento), en FP32 y, como referencia, en FP16 con autocast.
 
 Implementación:
-- Cada JSON guarda `env.gpu` y `env.torch` (p. ej. `2.15.0+cu132`). Desde la rama de tiempos también se guardan `env.cuda` y `env.cudnn`. Para las corridas anteriores, `aggregate.py` deriva la versión de CUDA del sufijo `+cuXYZ`.
+- Cada JSON guarda `env.gpu` y `env.torch` (p. ej. `2.15.0+cu132`); `aggregate.py` deriva la versión de CUDA del sufijo `+cuXYZ`. El código actual guarda además `env.cuda` y `env.cudnn`.
 - `report.table_train_times` filtra E1 por nombre de GPU ("RTX 3050") y **falla** si aparece una semilla distinta de 0–3, para no mezclar GPU por accidente.
-- `python -m src.bench_inference` genera `results/tablas/inferencia_rtx3050.csv` y `tabla_inferencia.{csv,tex}`. No arranca mientras la cola local siga viva ni si falta alguna corrida local, para no alterar los tiempos de entrenamiento.
+- `python -m src.bench_inference` genera `results/tablas/inferencia_rtx3050.csv` y `tabla_inferencia.{csv,tex}`. No arranca mientras haya un entrenamiento en curso ni si falta alguna de las 69 corridas, para no medir con la GPU ocupada.
 - **Energía:** la cola local corrió con el portátil conectado al cargador y el plan de energía de Windows "Equilibrado" (GUID 381b4222-f694-41f0-9685-ff5bb260df2e). El benchmark de inferencia exige estar conectado al cargador y guarda el plan activo en cada fila del CSV (`ac_power`, `power_plan`) para comprobar que fue el mismo.
 - El tiempo de inferencia que cada corrida guarda en su JSON (`timing.inference`) depende de la GPU donde corrió y no se usa en el artículo.
 
@@ -218,18 +218,14 @@ Implementación:
 | E3: 6 configuraciones × {25 %, 50 %} × 2 semillas | 24 |
 | **Total** | **69** |
 
-### 8.2 Estimación de tiempos (antes de medir; se corrige con `python -m src.runs --benchmark`)
+### 8.2 Dónde corrió cada experimento
 
-Supuestos: T4, AMP, caché en RAM. CNN y CNN+CBAM desde cero ≈ 8–9 min por corrida; DeiT desde cero ≈ 10 min; preentrenados ≈ 4 min. Como E3 iguala los pasos, cada corrida de E3 cuesta lo mismo que su equivalente de E1.
-
-| Integrante | Corridas | Estimado |
+| GPU | Experimentos | Corridas |
 |---|---|---|
-| Rosa | E1 semillas 0–1 (12) + E3 semilla 0 (12) | ~2,6 h |
-| Yaiza | E1 semillas 2–3 (12) + E3 semilla 1 (12) | ~2,6 h |
-| Daniel | E1 semilla 4 (6) + E2 completo (15) | ~2,6 h |
-| **Total** | 69 | **~7,8 h de GPU** |
+| NVIDIA GeForce RTX 3050 6 GB Laptop (local) | E1 semillas 0–3 + E3 | 24 + 24 = 48 |
+| Tesla T4 (Google Colab) | E1 semilla 4 + E2 | 6 + 15 = 21 |
 
-Cabe en el límite de ~6 h por cuenta. Si el benchmark en Colab da tiempos mucho mayores, primero se consulta al equipo antes de recortar (orden acordado: semillas de E3, épocas de los preentrenados, variantes de E2).
+Todas las corridas usan el mismo commit del código y la misma partición; cada JSON registra la GPU y las versiones de librerías. Los tiempos del artículo se toman solo de la RTX 3050 (sección 6.2).
 
 ---
 

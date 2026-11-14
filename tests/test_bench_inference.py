@@ -37,8 +37,19 @@ def test_main_writes_csv(tmp_path):
 def test_guard_refuses_when_runs_missing(tmp_path, monkeypatch):
     monkeypatch.setattr(bench, "queue_alive", lambda pid_file: False)
     monkeypatch.setattr(bench, "power_status", lambda: {"ac_power": True, "power_plan": "x"})
-    with pytest.raises(SystemExit, match="faltan"):
+    with pytest.raises(SystemExit, match="faltan 69 de las 69"):
         bench.check_ready(tmp_path, force=False)
+
+
+def test_guard_passes_with_all_69_runs(tmp_path, monkeypatch):
+    from src.runs import all_runs, result_path
+    for r in all_runs():
+        path = result_path(tmp_path, r)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(bench, "queue_alive", lambda pid_file: False)
+    monkeypatch.setattr(bench, "power_status", lambda: {"ac_power": True, "power_plan": "x"})
+    bench.check_ready(tmp_path, force=False)  # no lanza
 
 
 def test_guard_refuses_on_battery_and_live_queue(tmp_path, monkeypatch):
