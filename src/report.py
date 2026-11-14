@@ -125,18 +125,54 @@ def table_e2(summary: pd.DataFrame, boot: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def table_params_times(summary: pd.DataFrame) -> pd.DataFrame:
-    s = summary[(summary.experiment == "E1") & (summary.fraction == 1.0)].set_index("config")
+TIMING_GPU = "RTX 3050"        # los tiempos del artículo se miden solo en esta GPU
+TIMING_SEEDS = [0, 1, 2, 3]   # E1 semillas locales (la 4 y E2 corren en T4)
+
+
+def table_train_times(runs_df: pd.DataFrame, gpu: str = TIMING_GPU, seeds=TIMING_SEEDS) -> pd.DataFrame:
+    """Parámetros y tiempos de entrenamiento: solo E1, solo la GPU indicada.
+
+    Tiempo total = entrenamiento completo con early stopping (sin prueba ni
+    interpretabilidad). Época estable = mediana de s/época sin la época 1
+    (entrenamiento + validación). Falla si entra una semilla distinta de las
+    esperadas, para no mezclar GPU por accidente.
+    """
+    sel = runs_df[(runs_df.experiment == "E1") & (runs_df.fraction == 1.0)
+                  & runs_df.gpu.astype(str).str.contains(gpu, regex=False)]
+    extra = sorted(set(sel.seed) - set(seeds))
+    if extra:
+        raise ValueError(f"Semillas inesperadas en la tabla de tiempos ({gpu}): {extra}")
     rows = []
     for c in MAIN_ORDER:
-        if c not in s.index:
+        d = sel[sel.config == c]
+        if d.empty:
             continue
-        r = s.loc[c]
-        rows.append({"Modelo": pretty(c), "Parámetros": f"{int(r.params_total_mean):,}",
-                     "Parámetros CBAM": f"{int(r.params_cbam_mean):,}",
-                     "Entrenamiento (min)": pm(r.train_minutes_mean, r.train_minutes_std, 1),
-                     "Épocas": pm(r.epochs_run_mean, r.epochs_run_std, 0),
-                     "Inferencia (ms/img)": pm(r.infer_ms_mean, r.infer_ms_std, 2)})
+        rows.append({
+            "Modelo": pretty(c), "Parámetros": f"{int(d.params_total.iloc[0]):,}",
+            "Parámetros CBAM": f"{int(d.params_cbam.iloc[0]):,}",
+            "Entrenamiento (min)": pm(d.train_minutes.mean(), d.train_minutes.std(), 1),
+            "Época estable (s)": pm(d.epoch_seconds_stable.mean(), d.epoch_seconds_stable.std(), 1),
+            "Épocas": pm(d.epochs_run.mean(), d.epochs_run.std(), 0),
+            "Semillas": ",".join(str(s) for s in sorted(d.seed)),
+        })
+    return pd.DataFrame(rows)
+
+
+def table_inference(bench: pd.DataFrame) -> pd.DataFrame:
+    """Tabla de inferencia a partir del CSV de src/bench_inference.py."""
+    rows = []
+    for c in MAIN_ORDER:
+        d = bench[bench.config == c]
+        if d.empty:
+            continue
+        r = d.iloc[0]
+        rows.append({
+            "Modelo": pretty(c),
+            "Latencia FP32 (ms)": f"{r.latency_fp32_median_ms:.2f}",
+            "Throughput FP32 (img/s)": f"{r.throughput_fp32_img_s:.0f}",
+            "Latencia FP16 (ms)": f"{r.latency_fp16_median_ms:.2f}",
+            "Throughput FP16 (img/s)": f"{r.throughput_fp16_img_s:.0f}",
+        })
     return pd.DataFrame(rows)
 
 

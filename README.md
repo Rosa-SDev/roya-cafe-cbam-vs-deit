@@ -60,7 +60,7 @@ No hay rutas fijas en el código. Se pasan como argumento o con variables de ent
 python -m venv .venv && .venv/Scripts/activate      # Windows (en Linux/Mac: source .venv/bin/activate)
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
-pytest -q                                            # 44 pruebas, ~1 min
+pytest -q                                            # 52 pruebas, ~1-2 min
 python -m src.prepare_data --data-root data/cache --download   # 2,25 GB desde Mendeley
 python -m src.train --config configs/cnn_cbam_scratch.yaml --seed 0 --fraction 1.0 --experiment debug \
     --data-root data/cache --results-root results/debug --limit 24 --override train.epochs=1
@@ -136,7 +136,13 @@ Las corridas que ya existen idénticas se omiten. Si la misma corrida aparece co
 Con todas las corridas hechas, abrir `notebooks/02_resultados.ipynb` (en Colab o en local con Google Drive para escritorio, definiendo `ROCOLE_RESULTS_ROOT`). Genera:
 
 - `results/aggregate/`: `runs.csv`, `summary.csv`, `bootstrap.csv`, `comparisons.csv`.
-- `results/tables/`: tablas E1, E2 y parámetros/tiempos en CSV y `.tex` (booktabs).
+- `results/tablas/`: tablas E1, E2, parámetros y tiempos de entrenamiento (solo RTX 3050, E1 semillas 0-3) e inferencia, en CSV y `.tex` (booktabs).
+
+Benchmark de inferencia (solo cuando hayan terminado las colas; portátil conectado al cargador):
+
+```bash
+python -m src.bench_inference
+```
 - `figures/`: F1 por configuración, curvas de datos, matrices de confusión, sensibilidad por clase, fracción de atención en la hoja y ejemplos de mapas (PDF y PNG a 300 dpi).
 - Copia de los JSON en `results/runs/` para versionarlos.
 

@@ -165,7 +165,23 @@ def environment_info() -> dict:
     }
     if torch.cuda.is_available():
         info["gpu"] = torch.cuda.get_device_name(0)
+        info["cuda"] = torch.version.cuda
+        info["cudnn"] = torch.backends.cudnn.version()
     return info
+
+
+def cuda_version_of(env: dict) -> str | None:
+    """Versión de CUDA de una corrida: campo explícito o sufijo '+cuXYZ' de torch.
+
+    Las corridas anteriores a este campo solo guardan torch, p. ej. '2.15.0+cu132'
+    -> '13.2'; '2.5.1+cu121' -> '12.1'.
+    """
+    if env.get("cuda"):
+        return str(env["cuda"])
+    suffix = str(env.get("torch", "")).partition("+cu")[2]
+    if suffix.isdigit() and len(suffix) >= 3:
+        return f"{suffix[:-1]}.{suffix[-1]}"
+    return None
 
 
 # ---------------------------------------------------------------------------

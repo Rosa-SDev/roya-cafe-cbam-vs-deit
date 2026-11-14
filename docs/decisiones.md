@@ -173,7 +173,7 @@ Semillas fijadas en Python, NumPy y PyTorch (también en cada worker del DataLoa
 
 - Sobre prueba, con el mejor checkpoint: exactitud, F1 macro, precisión, sensibilidad y F1 por clase, matriz de confusión.
 - Binaria sana/enferma colapsando las predicciones de 6 clases (cualquier clase distinta de healthy = enferma). Se reporta el F1 de la clase enferma.
-- Parámetros, tiempo de entrenamiento y latencia de inferencia (mediana de 100 pasadas con lote 1 tras 20 de calentamiento, en la GPU de entrenamiento).
+- Parámetros, tiempo de entrenamiento e inferencia: ver 6.2 (los tiempos del artículo se miden en una sola GPU).
 - Agregación: media ± desviación estándar entre semillas.
 
 ### 6.1 Bootstrap por planta **[artículo]**
@@ -181,6 +181,19 @@ Semillas fijadas en Python, NumPy y PyTorch (también en cada worker del DataLoa
 > Los intervalos de confianza del 95 % se obtuvieron por bootstrap de percentiles con 2 000 réplicas, remuestreando plantas del conjunto de prueba con reemplazo (cada planta aporta todas sus imágenes), ya que las cuatro fotografías de una planta no son independientes. En cada réplica se calculó la métrica para cada semilla y se promedió entre semillas. Para comparar configuraciones se usaron las mismas réplicas en ambas, lo que da intervalos de diferencias pareadas.
 
 ---
+
+### 6.2 Tiempos: una sola GPU **[artículo]**
+
+Las corridas se repartieron entre una GPU local (NVIDIA GeForce RTX 3050 6 GB Laptop, CUDA 13.2, PyTorch 2.15) y Google Colab (Tesla T4). Las métricas de clasificación se agregan con las 5 semillas sin importar la GPU (la GPU no cambia qué se aprende, solo cuánto tarda). Los tiempos, en cambio, solo son comparables en la misma GPU, así que:
+
+> Los tiempos de entrenamiento se reportan como media ± desviación estándar sobre las corridas de E1 con semillas 0 a 3, todas ejecutadas en una NVIDIA GeForce RTX 3050 6 GB Laptop GPU. Se reporta el tiempo total de entrenamiento (con *early stopping*) y el tiempo de una época en régimen estable, definido como la mediana de los segundos por época excluyendo la primera, que incluye el arranque. Cada época incluye entrenamiento y validación. La inferencia se midió por separado en la misma GPU, con los modelos de la semilla 0, sobre tensores aleatorios de 3×224×224 (sin lectura ni preprocesamiento de imágenes): latencia con lote 1 (mediana de 200 pasadas tras 50 de calentamiento) y throughput con lote 32 (50 lotes tras 10 de calentamiento), en FP32 y, como referencia, en FP16 con autocast.
+
+Implementación:
+- Cada JSON guarda `env.gpu` y `env.torch` (p. ej. `2.15.0+cu132`). Desde la rama de tiempos también se guardan `env.cuda` y `env.cudnn`. Para las corridas anteriores, `aggregate.py` deriva la versión de CUDA del sufijo `+cuXYZ`.
+- `report.table_train_times` filtra E1 por nombre de GPU ("RTX 3050") y **falla** si aparece una semilla distinta de 0–3, para no mezclar GPU por accidente.
+- `python -m src.bench_inference` genera `results/tablas/inferencia_rtx3050.csv` y `tabla_inferencia.{csv,tex}`. No arranca mientras la cola local siga viva ni si falta alguna corrida local, para no alterar los tiempos de entrenamiento.
+- **Energía:** la cola local corrió con el portátil conectado al cargador y el plan de energía de Windows "Equilibrado" (GUID 381b4222-f694-41f0-9685-ff5bb260df2e). El benchmark de inferencia exige estar conectado al cargador y guarda el plan activo en cada fila del CSV (`ac_power`, `power_plan`) para comprobar que fue el mismo.
+- El tiempo de inferencia que cada corrida guarda en su JSON (`timing.inference`) depende de la GPU donde corrió y no se usa en el artículo.
 
 ## 7. Interpretabilidad (H4)
 

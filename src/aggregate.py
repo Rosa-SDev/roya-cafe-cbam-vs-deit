@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 
 from .evaluate import bootstrap_ci, mean_stat, metric_stat, plant_bootstrap_indices
-from .utils import CLASSES, resolve_dir
+from .utils import CLASSES, cuda_version_of, resolve_dir
 
 METRICS = ["macro_f1", "accuracy", "binary_f1"]
 SUMMARY_COLS = ["accuracy", "macro_f1", "binary_accuracy", "binary_f1",
@@ -75,6 +75,19 @@ def load_runs(results_root: Path) -> list[dict]:
     return runs
 
 
+def stable_epoch_seconds(history: list[dict]) -> float:
+    """Mediana de los segundos por época sin la época 1.
+
+    La época 1 incluye el arranque (workers del DataLoader, cuDNN). Cada valor
+    cubre entrenamiento + validación de esa época. En E3 solo se registran las
+    épocas validadas, que son representativas del resto.
+    """
+    secs = [h["epoch_seconds"] for h in history if h.get("epoch", 0) > 1]
+    if not secs:
+        secs = [h["epoch_seconds"] for h in history]
+    return float(np.median(secs)) if secs else float("nan")
+
+
 def run_row(r: dict) -> dict:
     t = r["test"]
     row = {
@@ -87,6 +100,8 @@ def run_row(r: dict) -> dict:
         "best_epoch": r["best"]["epoch"], "best_val_macro_f1": r["best"]["val_macro_f1"],
         "infer_ms": r["timing"]["inference"]["median_ms"], "infer_device": r["timing"]["inference"]["device"],
         "commit": r["code_version"]["commit"][:10], "gpu": r["env"].get("gpu", r["env"]["device"]),
+        "torch": r["env"].get("torch"), "cuda": cuda_version_of(r["env"]),
+        "epoch_seconds_stable": stable_epoch_seconds(r.get("history") or []),
     }
     for c in CLASSES:
         pc = t["per_class"][c]
