@@ -1,0 +1,7 @@
+Modelo,Latencia FP32 (ms),Throughput FP32 (img/s),Latencia FP16 (ms),Throughput FP16 (img/s)
+CNN (cero),2.42,517,2.79,874
+CNN+CBAM (cero),5.56,363,7.21,623
+DeiT-Ti (cero),10.84,789,13.56,1625
+MBV2 (pre),9.89,715,12.94,1316
+MBV2+CBAM (pre),13.50,696,19.76,1243
+DeiT-Ti (pre),10.08,789,13.45,1624
