@@ -67,6 +67,15 @@ def class_weights(train_labels: np.ndarray, k: int = len(CLASSES)) -> torch.Tens
     return torch.tensor(len(train_labels) / (k * counts), dtype=torch.float32)
 
 
+def gpu_memory(device) -> dict:
+    """Memoria pico de GPU (MB) durante la corrida: asignada por tensores y reservada por el caché."""
+    if device.type != "cuda":
+        return {}
+    return {"max_allocated": torch.cuda.max_memory_allocated(device) / 2**20,
+            "max_reserved": torch.cuda.max_memory_reserved(device) / 2**20,
+            "total": torch.cuda.get_device_properties(device).total_memory / 2**20}
+
+
 def lr_lambda_factory(warmup_steps: int, total_steps: int, min_ratio: float):
     """Warmup lineal y luego coseno hasta min_ratio * lr."""
     def fn(step: int) -> float:
@@ -101,8 +110,11 @@ def select_indices(split_df: pd.DataFrame, names: np.ndarray, fraction: float, l
 
 def make_loader(dataset, cfg, shuffle: bool, seed: int, device) -> DataLoader:
     workers = cfg["data"]["num_workers"]
-    if sys.platform == "win32":
-        workers = 0  # en Windows los workers copiarían la caché completa (spawn)
+    if sys.platform == "win32" and not shuffle:
+        # En Windows cada worker arranca con 'spawn' y recibe una copia de la caché
+        # (~15 s). Solo compensa en entrenamiento, donde el aumento de datos en CPU
+        # se solapa con la GPU; validación y prueba son baratas y van sin workers.
+        workers = 0
     gen = torch.Generator()
     gen.manual_seed(seed)
     return DataLoader(
@@ -158,6 +170,8 @@ def train_run(cfg: dict, seed: int, fraction: float, experiment: str, data_root:
     set_seed(seed, cfg["train"].get("deterministic", True))
     device = torch.device(device_name or ("cuda" if torch.cuda.is_available() else "cpu"))
     amp = bool(cfg["train"]["amp"]) and device.type == "cuda"
+    if device.type == "cuda":
+        torch.cuda.reset_peak_memory_stats(device)
 
     # Datos
     cache = load_cache(data_root)
@@ -261,7 +275,7 @@ def train_run(cfg: dict, seed: int, fraction: float, experiment: str, data_root:
         "best": best, "stopped_early": stopped_early, "epochs_run": history[-1]["epoch"],
         "history": history,
         "timing": {"train_seconds": train_timer.seconds, "test_predict_seconds": test_timer.seconds,
-                   "inference": timing_inf},
+                   "inference": timing_inf, "gpu_memory_mb": gpu_memory(device)},
         "test": test_metrics, "predictions": predictions, "interpretation": interp,
         "code_version": git_commit(), "env": environment_info(),
         "started_at": started, "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

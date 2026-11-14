@@ -60,7 +60,7 @@ No hay rutas fijas en el código. Se pasan como argumento o con variables de ent
 python -m venv .venv && .venv/Scripts/activate      # Windows (en Linux/Mac: source .venv/bin/activate)
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
 pip install -r requirements.txt
-pytest -q                                            # 42 pruebas, ~1 min
+pytest -q                                            # 44 pruebas, ~1 min
 python -m src.prepare_data --data-root data/cache --download   # 2,25 GB desde Mendeley
 python -m src.train --config configs/cnn_cbam_scratch.yaml --seed 0 --fraction 1.0 --experiment debug \
     --data-root data/cache --results-root results/debug --limit 24 --override train.epochs=1
@@ -108,6 +108,28 @@ Si la descarga directa fallara: bajar el zip a mano desde https://data.mendeley.
 | Daniel | E1 semilla 4 + E2 completo (21) | ~2,6 h |
 
 Consejos: Colab gratuito corta tras ~90 min sin interacción o unas 12 h de sesión; deja la pestaña abierta. Cada corrida guarda su JSON solo al terminar, así que una desconexión pierde como mucho la corrida en curso.
+
+### Ejecución actual: GPU local + Colab
+
+El proyecto se ejecuta en dos lugares:
+
+- **GPU local (RTX 3050 6 GB):** corridas de `rosa` y `yaiza` (E1 semillas 0-3 y E3), escribiendo en `results/` del repositorio.
+- **Colab:** corridas de `daniel` (E1 semilla 4 y E2), con `MEMBER = "daniel"` en el notebook 01.
+
+```bash
+python -m src.runs --member rosa,yaiza --execute --data-root data/cache --results-root results
+```
+
+Avance: `python -m src.runs --status --results-root results`. Si se interrumpe, se vuelve a lanzar el mismo comando y continúa donde iba.
+
+Para unir los resultados de Colab (bajados de Drive como carpeta o como `.zip`) con los locales, sin duplicar corridas:
+
+```bash
+python -m src.merge_runs RUTA_A_LA_DESCARGA --dry-run   # ver qué haría
+python -m src.merge_runs RUTA_A_LA_DESCARGA             # copiar a results/runs/
+```
+
+Las corridas que ya existen idénticas se omiten. Si la misma corrida aparece con resultados distintos, no se sobrescribe y se reporta como conflicto.
 
 ### Resultados
 

@@ -24,7 +24,9 @@ checkpoints/
 
 # Resultados de pruebas locales
 results/debug*/
+results/bench*/
 results_local/
+logs/
 
 # Configuración local de herramientas del editor (no se versiona)
 [Cc][Ll][Aa][Uu][Dd][Ee].md

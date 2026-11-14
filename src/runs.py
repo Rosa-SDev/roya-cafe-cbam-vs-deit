@@ -63,9 +63,12 @@ ASSIGNMENT = {
 
 
 def runs_for(member: str) -> list[dict]:
-    if member not in ASSIGNMENT:
-        raise SystemExit(f"Integrante desconocido: {member}. Opciones: {sorted(ASSIGNMENT)}")
-    return [r for r in all_runs() if ASSIGNMENT[member](r)]
+    """Corridas de un integrante o de varios separados por coma ("rosa,yaiza")."""
+    members = [m.strip() for m in member.split(",")]
+    unknown = [m for m in members if m not in ASSIGNMENT]
+    if unknown:
+        raise SystemExit(f"Integrante desconocido: {unknown}. Opciones: {sorted(ASSIGNMENT)}")
+    return [r for r in all_runs() if any(ASSIGNMENT[m](r) for m in members)]
 
 
 def result_path(results_root: Path, run: dict) -> Path:
@@ -105,33 +108,44 @@ def execute(runs: list[dict], data_root: Path, results_root: Path, extra: list[s
         print("\nTodas las corridas asignadas están completas.")
 
 
-def benchmark(data_root: Path, out_root: Path, epochs: int = 3) -> dict[str, float]:
-    """Entrena cada configuración principal unas pocas épocas y estima minutos por corrida.
+def benchmark(data_root: Path, out_root: Path, epochs: int = 2) -> dict[str, float]:
+    """Entrena cada configuración principal `epochs` épocas y estima minutos por corrida.
 
-    La primera época incluye arranque (cuDNN, workers), por eso se usa la
-    mediana de las épocas. Estimación = s/época x épocas completas (60 o 30),
-    sin early stopping: es una cota superior. E2 se estima con cnn_cbam_scratch
-    y E3 cuesta lo mismo que E1 porque se igualan los pasos.
+    La época 1 incluye el arranque (cuDNN, primera compilación de kernels), por
+    eso la estimación usa la última época (régimen estable), más ~1 min fijo
+    por corrida para prueba, interpretabilidad y escritura. Estimación =
+    s/época x épocas completas (60 o 30), sin early stopping: cota superior.
+    E2 se estima con cnn_cbam_scratch y E3 cuesta lo mismo que E1 porque se
+    igualan los pasos de optimización.
     """
     import json
-    import statistics
 
     from .utils import load_config
 
     minutes = {}
+    print(f"{'configuración':<18} {'época 1 (s)':>11} {'época N (s)':>11} {'GPU pico asignada':>18} "
+          f"{'GPU pico reservada':>19} {'min/corrida':>12}")
     for config in MAIN_CONFIGS:
         cmd = [sys.executable, "-m", "src.train", "--config", str(CONFIG_DIR / f"{config}.yaml"), "--seed", "0",
                "--experiment", "bench", "--data-root", str(data_root), "--results-root", str(out_root),
                "--override", f"train.epochs={epochs}", "--override", "train.warmup_epochs=1",
                "--override", "interpret.enabled=false", "--no-checkpoint", "--force"]
-        subprocess.call(cmd, cwd=REPO_ROOT)
+        code = subprocess.call(cmd, cwd=REPO_ROOT, stdout=subprocess.DEVNULL)
         path = out_root / "runs" / "bench" / f"{run_name(config, 1.0, 0)}.json"
+        if code != 0 or not path.exists():
+            print(f"{config:<18} FALLÓ (código {code}); revisa memoria de GPU")
+            continue
         with open(path, encoding="utf-8") as fh:
-            hist = json.load(fh)["history"]
-        sec = statistics.median(h["epoch_seconds"] for h in hist[1:] or hist)
+            data = json.load(fh)
+        hist, mem = data["history"], data["timing"].get("gpu_memory_mb", {})
+        sec = hist[-1]["epoch_seconds"]
         full_epochs = load_config(CONFIG_DIR / f"{config}.yaml")["train"]["epochs"]
-        minutes[config] = sec * full_epochs / 60
-        print(f"{config}: {sec:.1f} s/época -> ~{minutes[config]:.1f} min por corrida")
+        minutes[config] = sec * full_epochs / 60 + 1.0
+        print(f"{config:<18} {hist[0]['epoch_seconds']:>11.1f} {sec:>11.1f} "
+              f"{mem.get('max_allocated', float('nan')):>15.0f} MB {mem.get('max_reserved', float('nan')):>16.0f} MB "
+              f"{minutes[config]:>12.1f}")
+    if len(minutes) < len(MAIN_CONFIGS):
+        return minutes
     for c in E2_CONFIGS:
         minutes[c] = minutes["cnn_cbam_scratch"]
     total = 0.0
@@ -145,11 +159,12 @@ def benchmark(data_root: Path, out_root: Path, epochs: int = 3) -> dict[str, flo
 
 def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--member", help="rosa | yaiza | daniel")
+    parser.add_argument("--member", help="rosa | yaiza | daniel, o varios: rosa,yaiza")
     parser.add_argument("--experiment", help="Filtrar por experimento (E1, E2, E3)")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--status", action="store_true", help="Avance de todas las corridas")
     parser.add_argument("--benchmark", action="store_true", help="Medir tiempos en esta GPU")
+    parser.add_argument("--bench-epochs", type=int, default=2)
     parser.add_argument("--data-root")
     parser.add_argument("--results-root")
     args, extra = parser.parse_known_args(argv)
@@ -161,7 +176,7 @@ def main(argv=None) -> None:
 
     if args.benchmark:
         benchmark(resolve_dir(args.data_root, "ROCOLE_DATA_ROOT", "datos"),
-                  Path(args.results_root or "bench_results"))
+                  Path(args.results_root or "bench_results"), args.bench_epochs)
         return
 
     results_root = Path(args.results_root) if args.results_root else None
@@ -175,7 +190,7 @@ def main(argv=None) -> None:
     if args.status:
         results_root = resolve_dir(args.results_root, "ROCOLE_RESULTS_ROOT", "resultados")
     for member in ([args.member] if args.member else sorted(ASSIGNMENT)):
-        mine = [r for r in runs if ASSIGNMENT[member](r)]
+        mine = [r for r in runs if r in runs_for(member)]
         done = sum(result_path(results_root, r).exists() for r in mine) if results_root else 0
         print(f"{member}: {len(mine)} corridas, ~{estimated_minutes(mine) / 60:.1f} h estimadas"
               + (f", {done} hechas" if results_root else ""))
