@@ -1,0 +1,27 @@
+# Entorno
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Datos (nunca se suben: se descargan de Mendeley)
+data/raw/
+data/cache/
+*.zip
+*.tar.gz
+*.npz
+*.jpg
+*.jpeg
+!figures/**/*.jpg
+
+# Pesos y checkpoints
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+checkpoints/
+
+# Resultados de pruebas locales
+results/debug*/
+results_local/
