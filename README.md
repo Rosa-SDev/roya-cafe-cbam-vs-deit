@@ -39,7 +39,8 @@ notebooks/
   02_resultados.ipynb         tablas y figuras para el artículo
 tests/              pytest (no necesitan el dataset, salvo test_split que usa split.csv)
 results/            JSON por corrida y CSV agregados (sin pesos)
-figures/            figuras para el artículo
+figures/            figura de máscaras del notebook 00
+results/figuras/    figuras para el artículo (notebook 02)
 docs/decisiones.md  registro de decisiones técnicas
 ```
 
@@ -135,7 +136,7 @@ Las corridas que ya existen idénticas se omiten. Si la misma corrida aparece co
 
 Con todas las corridas hechas, abrir `notebooks/02_resultados.ipynb` (en Colab o en local con Google Drive para escritorio, definiendo `ROCOLE_RESULTS_ROOT`). Genera:
 
-- `results/aggregate/`: `runs.csv`, `summary.csv`, `bootstrap.csv`, `comparisons.csv`.
+- `results/tablas/`: agregados `runs.csv`, `summary.csv`, `bootstrap.csv`, `comparisons.csv`.
 - `results/tablas/`: tablas E1, E2, parámetros y tiempos de entrenamiento (solo RTX 3050, E1 semillas 0-3) e inferencia, en CSV y `.tex` (booktabs).
 
 Benchmark de inferencia (solo cuando hayan terminado las colas; portátil conectado al cargador):
@@ -143,7 +144,7 @@ Benchmark de inferencia (solo cuando hayan terminado las colas; portátil conect
 ```bash
 python -m src.bench_inference
 ```
-- `figures/`: F1 por configuración, curvas de datos, matrices de confusión, sensibilidad por clase, fracción de atención en la hoja y ejemplos de mapas (PDF y PNG a 300 dpi).
+- `results/figuras/`: F1 por configuración, curvas de datos, matrices de confusión, sensibilidad por clase, fracción de atención en la hoja y ejemplos de mapas (PDF y PNG a 300 dpi).
 - Copia de los JSON en `results/runs/` para versionarlos.
 
 ## Reproducibilidad

@@ -1,0 +1,57 @@
+comparison,hypothesis,metric,a,b,n_a,n_b,point,ci_low,ci_high,p_le_0
+cnn_cbam - cnn (desde cero),H1,macro_f1,E1/cnn_cbam_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.02327720481845169,-0.03505687642472741,0.0832442751265507,0.201
+cnn_cbam - cnn (desde cero),H1,accuracy,E1/cnn_cbam_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.01779661016949141,-0.015254237288135686,0.05084745762711873,0.155
+cnn_cbam - cnn (desde cero),H1,binary_f1,E1/cnn_cbam_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.029134487611281457,0.0023800635846036567,0.05821902796186062,0.015
+mbv2_cbam - mbv2 (preentrenado),H1,macro_f1,E1/mbv2_cbam_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.022134569990513886,-0.06732125755403322,0.025092575612234193,0.8225
+mbv2_cbam - mbv2 (preentrenado),H1,accuracy,E1/mbv2_cbam_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.005084745762711895,-0.025423728813559365,0.015254237288135686,0.6875
+mbv2_cbam - mbv2 (preentrenado),H1,binary_f1,E1/mbv2_cbam_pre/1.0,E1/mbv2_pre/1.0,5,5,0.012365104058437937,-0.0018482475747782583,0.027606797817231316,0.0415
+deit - cnn (desde cero),H2,macro_f1,E1/deit_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.20122173188783504,-0.28572059620367585,-0.11289963013345451,1.0
+deit - cnn (desde cero),H2,accuracy,E1/deit_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.27033898305084747,-0.3186652542372882,-0.21864406779661016,1.0
+deit - cnn (desde cero),H2,binary_f1,E1/deit_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.18359371863102403,-0.22514048714484886,-0.1427529333915171,1.0
+deit - cnn_cbam (desde cero),H2,macro_f1,E1/deit_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,-0.22449893670628673,-0.28557405186513357,-0.1564291293392506,1.0
+deit - cnn_cbam (desde cero),H2,accuracy,E1/deit_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,-0.2881355932203389,-0.3415254237288135,-0.23218220338983062,1.0
+deit - cnn_cbam (desde cero),H2,binary_f1,E1/deit_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,-0.21272820624230548,-0.2573590509813157,-0.1663355133262569,1.0
+deit - mbv2 (preentrenado),H2,macro_f1,E1/deit_pre/1.0,E1/mbv2_pre/1.0,5,5,0.014260807056340696,-0.04072053908176737,0.06638228249740454,0.305
+deit - mbv2 (preentrenado),H2,accuracy,E1/deit_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.00423728813559332,-0.03305084745762721,0.02627118644067794,0.5955
+deit - mbv2 (preentrenado),H2,binary_f1,E1/deit_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.002638928161467158,-0.02413340915503635,0.022802138758978442,0.5905
+deit - mbv2_cbam (preentrenado),H2,macro_f1,E1/deit_pre/1.0,E1/mbv2_cbam_pre/1.0,5,5,0.03639537704685458,-0.025589182328921323,0.09248579269265741,0.1245
+deit - mbv2_cbam (preentrenado),H2,accuracy,E1/deit_pre/1.0,E1/mbv2_cbam_pre/1.0,5,5,0.0008474576271185752,-0.02627118644067794,0.028813559322033888,0.477
+deit - mbv2_cbam (preentrenado),H2,binary_f1,E1/deit_pre/1.0,E1/mbv2_cbam_pre/1.0,5,5,-0.015004032219905095,-0.03753347889110227,0.01093641160522852,0.8845
+deit_pre - deit_scratch,H2,macro_f1,E1/deit_pre/1.0,E1/deit_scratch/1.0,5,5,0.241625001316715,0.17867830650649721,0.2984176611028564,0.0
+deit_pre - deit_scratch,H2,accuracy,E1/deit_pre/1.0,E1/deit_scratch/1.0,5,5,0.3245762711864406,0.2644067796610171,0.38561440677966097,0.0
+deit_pre - deit_scratch,H2,binary_f1,E1/deit_pre/1.0,E1/deit_scratch/1.0,5,5,0.22066840498762075,0.17576255069775532,0.26254866112185193,0.0
+cbam_channel - cnn,E2,macro_f1,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.014817958274563947,-0.03839210082449601,0.07658697586648137,0.2605
+cbam_channel - cnn,E2,accuracy,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.01779661016949141,-0.014427966101694853,0.05084745762711862,0.156
+cbam_channel - cnn,E2,binary_f1,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.030089339471472742,0.0029108636708783248,0.05736731845540332,0.0125
+cbam_spatial - cnn,E2,macro_f1,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.05317358389070859,-0.0016235800644820385,0.11598059975946859,0.032
+cbam_spatial - cnn,E2,accuracy,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.037288135593220195,0.011864406779661052,0.06101694915254241,0.0015
+cbam_spatial - cnn,E2,binary_f1,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.03660762046111565,0.017524836271650447,0.05606998371582476,0.0
+cbam_last2 - cnn,E2,macro_f1,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.05442333591456694,0.0010138224280787315,0.11064037927001709,0.024
+cbam_last2 - cnn,E2,accuracy,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.02033898305084736,-0.011038135593220437,0.051694915254237195,0.1075
+cbam_last2 - cnn,E2,binary_f1,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.02344534351475891,-0.0067100886070317915,0.05248144882421681,0.0605
+cbam_channel - cbam_both,E2,macro_f1,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,-0.008459246543887744,-0.056957014275968554,0.042853423261013955,0.6265
+cbam_channel - cbam_both,E2,accuracy,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.0,-0.02881355932203389,0.028813559322033888,0.518
+cbam_channel - cbam_both,E2,binary_f1,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.0009548518601912859,-0.01144393527223928,0.013638434877781689,0.4495
+cbam_spatial - cbam_both,E2,macro_f1,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.029896379072256896,-0.01952961050744765,0.0769993467582051,0.119
+cbam_spatial - cbam_both,E2,accuracy,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.019491525423728784,-0.01610169491525415,0.055932203389830626,0.1515
+cbam_spatial - cbam_both,E2,binary_f1,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.0074731328498341965,-0.018785289706757906,0.03312864585034046,0.2775
+cbam_last2 - cbam_both,E2,macro_f1,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.031146131096115248,-0.013200115048146522,0.07555467664748404,0.098
+cbam_last2 - cbam_both,E2,accuracy,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.0025423728813559476,-0.022881355932203307,0.027118644067796627,0.429
+cbam_last2 - cbam_both,E2,binary_f1,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,-0.005689144096522547,-0.02212416706307518,0.011063835349921836,0.7545
+"deit - cnn (desde cero, 25 %)",H3,macro_f1,E3/deit_scratch/0.25,E3/cnn_scratch/0.25,2,2,-0.19239757415691017,-0.2690726239547171,-0.09983586078370257,1.0
+"deit - cnn (desde cero, 25 %)",H3,accuracy,E3/deit_scratch/0.25,E3/cnn_scratch/0.25,2,2,-0.163135593220339,-0.211864406779661,-0.11223516949152564,1.0
+"deit - cnn (desde cero, 25 %)",H3,binary_f1,E3/deit_scratch/0.25,E3/cnn_scratch/0.25,2,2,-0.17577095220324757,-0.23585271688293055,-0.12248835494443125,1.0
+"deit - mbv2 (preentrenado, 25 %)",H3,macro_f1,E3/deit_pre/0.25,E3/mbv2_pre/0.25,2,2,0.01729558963754313,-0.04672835759291826,0.09173464058314967,0.2355
+"deit - mbv2 (preentrenado, 25 %)",H3,accuracy,E3/deit_pre/0.25,E3/mbv2_pre/0.25,2,2,0.02754237288135597,-0.014830508474576232,0.06779661016949157,0.1085
+"deit - mbv2 (preentrenado, 25 %)",H3,binary_f1,E3/deit_pre/0.25,E3/mbv2_pre/0.25,2,2,0.030960479769516658,-0.010084552324984427,0.07367639000062481,0.0675
+"deit - cnn (desde cero, 50 %)",H3,macro_f1,E3/deit_scratch/0.5,E3/cnn_scratch/0.5,2,2,-0.23388717741684906,-0.2992413522180599,-0.15877231733047129,1.0
+"deit - cnn (desde cero, 50 %)",H3,accuracy,E3/deit_scratch/0.5,E3/cnn_scratch/0.5,2,2,-0.2902542372881356,-0.3389830508474576,-0.24359110169491557,1.0
+"deit - cnn (desde cero, 50 %)",H3,binary_f1,E3/deit_scratch/0.5,E3/cnn_scratch/0.5,2,2,-0.18082432625906386,-0.22934402616027172,-0.13062272820439888,1.0
+"deit - mbv2 (preentrenado, 50 %)",H3,macro_f1,E3/deit_pre/0.5,E3/mbv2_pre/0.5,2,2,0.06548998391642258,-0.012592043665058393,0.13780017102957745,0.05
+"deit - mbv2 (preentrenado, 50 %)",H3,accuracy,E3/deit_pre/0.5,E3/mbv2_pre/0.5,2,2,0.014830508474576232,-0.03601694915254239,0.06355932203389825,0.277
+"deit - mbv2 (preentrenado, 50 %)",H3,binary_f1,E3/deit_pre/0.5,E3/mbv2_pre/0.5,2,2,0.0217060176562065,-0.019549622884614187,0.06442579109503765,0.1595
+in_leaf gradcam: cnn_cbam - cnn,H4,in_leaf_gradcam-gradcam,E1/cnn_cbam_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.035711256587499074,-0.050086603767585856,-0.021791765100590988,1.0
+in_leaf gradcam: mbv2_cbam - mbv2,H4,in_leaf_gradcam-gradcam,E1/mbv2_cbam_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.02570961154365936,-0.03191963085083896,-0.0196564887508244,1.0
+in_leaf rollout deit_scratch - gradcam cnn,H4,in_leaf_rollout-gradcam,E1/deit_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.23642801713529915,-0.26010779819325003,-0.2126959123519266,1.0
+in_leaf rollout deit_pre - gradcam mbv2,H4,in_leaf_rollout-gradcam,E1/deit_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.1554276785481784,-0.16912623997809278,-0.1410927346089886,1.0
+in_leaf cbam_last cnn_cbam - gradcam cnn,H4,in_leaf_cbam_last-gradcam,E1/cnn_cbam_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.24984291397682312,-0.27019835675208265,-0.22881667111714177,1.0

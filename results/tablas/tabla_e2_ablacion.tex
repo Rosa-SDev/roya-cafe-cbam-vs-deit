@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\caption{Ablación de CBAM en la CNN entrenada desde cero (E2).}
+\label{tab:e2}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+Variante & Parámetros CBAM & Exactitud & F1 macro & IC95 F1 macro & n \\
+\midrule
+Sin CBAM & 0 & 0.689 $\pm$ 0.025 & 0.476 $\pm$ 0.044 & [0.392, 0.549] & 5 \\
+CBAM canal+espacial (4 bloques) & 11,782 & 0.707 $\pm$ 0.019 & 0.500 $\pm$ 0.017 & [0.425, 0.560] & 5 \\
+Solo canal (4 bloques) & 11,390 & 0.707 $\pm$ 0.018 & 0.491 $\pm$ 0.033 & [0.409, 0.567] & 5 \\
+Solo espacial (4 bloques) & 392 & 0.726 $\pm$ 0.024 & 0.529 $\pm$ 0.031 & [0.438, 0.605] & 5 \\
+Canal+espacial (bloques 3-4) & 10,844 & 0.709 $\pm$ 0.045 & 0.531 $\pm$ 0.057 & [0.442, 0.600] & 5 \\
+\bottomrule
+\end{tabular}}
+\end{table}

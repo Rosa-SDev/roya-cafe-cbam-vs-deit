@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\caption{Parámetros y tiempo de entrenamiento en una RTX 3050 6 GB Laptop (E1, semillas 0-3; media $\pm$ desviación). Época estable: mediana de segundos por época sin la primera.}
+\label{tab:params}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+Modelo & Parámetros & Parámetros CBAM & Entrenamiento (min) & Época estable (s) & Épocas & Semillas \\
+\midrule
+CNN (cero) & 1,174,758 & 0 & 4.7 $\pm$ 0.7 & 5.5 $\pm$ 0.1 & 48 $\pm$ 9 & 0,1,2,3 \\
+CNN+CBAM (cero) & 1,186,540 & 11,782 & 8.9 $\pm$ 1.4 & 9.6 $\pm$ 0.2 & 54 $\pm$ 8 & 0,1,2,3 \\
+DeiT-Ti (cero) & 5,525,574 & 0 & 4.6 $\pm$ 0.2 & 4.4 $\pm$ 0.5 & 60 $\pm$ 1 & 0,1,2,3 \\
+MBV2 (pre) & 2,231,558 & 0 & 2.7 $\pm$ 0.3 & 4.8 $\pm$ 0.4 & 29 $\pm$ 2 & 0,1,2,3 \\
+MBV2+CBAM (pre) & 2,237,316 & 5,758 & 2.8 $\pm$ 0.1 & 5.3 $\pm$ 0.4 & 28 $\pm$ 3 & 0,1,2,3 \\
+DeiT-Ti (pre) & 5,525,574 & 0 & 2.5 $\pm$ 0.4 & 4.6 $\pm$ 0.3 & 28 $\pm$ 3 & 0,1,2,3 \\
+\bottomrule
+\end{tabular}}
+\end{table}

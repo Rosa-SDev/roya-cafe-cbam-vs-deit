@@ -1,0 +1,57 @@
+comparison,hypothesis,metric,a,b,n_a,n_b,point,ci_low,ci_high,p_le_0
+cnn_cbam - cnn (desde cero),H1,macro_f1,E1/cnn_cbam_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0233,-0.0351,0.0832,0.201
+cnn_cbam - cnn (desde cero),H1,accuracy,E1/cnn_cbam_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0178,-0.0153,0.0508,0.155
+cnn_cbam - cnn (desde cero),H1,binary_f1,E1/cnn_cbam_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0291,0.0024,0.0582,0.015
+mbv2_cbam - mbv2 (preentrenado),H1,macro_f1,E1/mbv2_cbam_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.0221,-0.0673,0.0251,0.8225
+mbv2_cbam - mbv2 (preentrenado),H1,accuracy,E1/mbv2_cbam_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.0051,-0.0254,0.0153,0.6875
+mbv2_cbam - mbv2 (preentrenado),H1,binary_f1,E1/mbv2_cbam_pre/1.0,E1/mbv2_pre/1.0,5,5,0.0124,-0.0018,0.0276,0.0415
+deit - cnn (desde cero),H2,macro_f1,E1/deit_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.2012,-0.2857,-0.1129,1.0
+deit - cnn (desde cero),H2,accuracy,E1/deit_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.2703,-0.3187,-0.2186,1.0
+deit - cnn (desde cero),H2,binary_f1,E1/deit_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.1836,-0.2251,-0.1428,1.0
+deit - cnn_cbam (desde cero),H2,macro_f1,E1/deit_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,-0.2245,-0.2856,-0.1564,1.0
+deit - cnn_cbam (desde cero),H2,accuracy,E1/deit_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,-0.2881,-0.3415,-0.2322,1.0
+deit - cnn_cbam (desde cero),H2,binary_f1,E1/deit_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,-0.2127,-0.2574,-0.1663,1.0
+deit - mbv2 (preentrenado),H2,macro_f1,E1/deit_pre/1.0,E1/mbv2_pre/1.0,5,5,0.0143,-0.0407,0.0664,0.305
+deit - mbv2 (preentrenado),H2,accuracy,E1/deit_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.0042,-0.0331,0.0263,0.5955
+deit - mbv2 (preentrenado),H2,binary_f1,E1/deit_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.0026,-0.0241,0.0228,0.5905
+deit - mbv2_cbam (preentrenado),H2,macro_f1,E1/deit_pre/1.0,E1/mbv2_cbam_pre/1.0,5,5,0.0364,-0.0256,0.0925,0.1245
+deit - mbv2_cbam (preentrenado),H2,accuracy,E1/deit_pre/1.0,E1/mbv2_cbam_pre/1.0,5,5,0.0008,-0.0263,0.0288,0.477
+deit - mbv2_cbam (preentrenado),H2,binary_f1,E1/deit_pre/1.0,E1/mbv2_cbam_pre/1.0,5,5,-0.015,-0.0375,0.0109,0.8845
+deit_pre - deit_scratch,H2,macro_f1,E1/deit_pre/1.0,E1/deit_scratch/1.0,5,5,0.2416,0.1787,0.2984,0.0
+deit_pre - deit_scratch,H2,accuracy,E1/deit_pre/1.0,E1/deit_scratch/1.0,5,5,0.3246,0.2644,0.3856,0.0
+deit_pre - deit_scratch,H2,binary_f1,E1/deit_pre/1.0,E1/deit_scratch/1.0,5,5,0.2207,0.1758,0.2625,0.0
+cbam_channel - cnn,E2,macro_f1,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0148,-0.0384,0.0766,0.2605
+cbam_channel - cnn,E2,accuracy,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0178,-0.0144,0.0508,0.156
+cbam_channel - cnn,E2,binary_f1,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0301,0.0029,0.0574,0.0125
+cbam_spatial - cnn,E2,macro_f1,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0532,-0.0016,0.116,0.032
+cbam_spatial - cnn,E2,accuracy,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0373,0.0119,0.061,0.0015
+cbam_spatial - cnn,E2,binary_f1,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0366,0.0175,0.0561,0.0
+cbam_last2 - cnn,E2,macro_f1,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0544,0.001,0.1106,0.024
+cbam_last2 - cnn,E2,accuracy,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0203,-0.011,0.0517,0.1075
+cbam_last2 - cnn,E2,binary_f1,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_scratch/1.0,5,5,0.0234,-0.0067,0.0525,0.0605
+cbam_channel - cbam_both,E2,macro_f1,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,-0.0085,-0.057,0.0429,0.6265
+cbam_channel - cbam_both,E2,accuracy,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.0,-0.0288,0.0288,0.518
+cbam_channel - cbam_both,E2,binary_f1,E2/cnn_cbam_channel_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.001,-0.0114,0.0136,0.4495
+cbam_spatial - cbam_both,E2,macro_f1,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.0299,-0.0195,0.077,0.119
+cbam_spatial - cbam_both,E2,accuracy,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.0195,-0.0161,0.0559,0.1515
+cbam_spatial - cbam_both,E2,binary_f1,E2/cnn_cbam_spatial_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.0075,-0.0188,0.0331,0.2775
+cbam_last2 - cbam_both,E2,macro_f1,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.0311,-0.0132,0.0756,0.098
+cbam_last2 - cbam_both,E2,accuracy,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,0.0025,-0.0229,0.0271,0.429
+cbam_last2 - cbam_both,E2,binary_f1,E2/cnn_cbam_last2_scratch/1.0,E1/cnn_cbam_scratch/1.0,5,5,-0.0057,-0.0221,0.0111,0.7545
+"deit - cnn (desde cero, 25 %)",H3,macro_f1,E3/deit_scratch/0.25,E3/cnn_scratch/0.25,2,2,-0.1924,-0.2691,-0.0998,1.0
+"deit - cnn (desde cero, 25 %)",H3,accuracy,E3/deit_scratch/0.25,E3/cnn_scratch/0.25,2,2,-0.1631,-0.2119,-0.1122,1.0
+"deit - cnn (desde cero, 25 %)",H3,binary_f1,E3/deit_scratch/0.25,E3/cnn_scratch/0.25,2,2,-0.1758,-0.2359,-0.1225,1.0
+"deit - mbv2 (preentrenado, 25 %)",H3,macro_f1,E3/deit_pre/0.25,E3/mbv2_pre/0.25,2,2,0.0173,-0.0467,0.0917,0.2355
+"deit - mbv2 (preentrenado, 25 %)",H3,accuracy,E3/deit_pre/0.25,E3/mbv2_pre/0.25,2,2,0.0275,-0.0148,0.0678,0.1085
+"deit - mbv2 (preentrenado, 25 %)",H3,binary_f1,E3/deit_pre/0.25,E3/mbv2_pre/0.25,2,2,0.031,-0.0101,0.0737,0.0675
+"deit - cnn (desde cero, 50 %)",H3,macro_f1,E3/deit_scratch/0.5,E3/cnn_scratch/0.5,2,2,-0.2339,-0.2992,-0.1588,1.0
+"deit - cnn (desde cero, 50 %)",H3,accuracy,E3/deit_scratch/0.5,E3/cnn_scratch/0.5,2,2,-0.2903,-0.339,-0.2436,1.0
+"deit - cnn (desde cero, 50 %)",H3,binary_f1,E3/deit_scratch/0.5,E3/cnn_scratch/0.5,2,2,-0.1808,-0.2293,-0.1306,1.0
+"deit - mbv2 (preentrenado, 50 %)",H3,macro_f1,E3/deit_pre/0.5,E3/mbv2_pre/0.5,2,2,0.0655,-0.0126,0.1378,0.05
+"deit - mbv2 (preentrenado, 50 %)",H3,accuracy,E3/deit_pre/0.5,E3/mbv2_pre/0.5,2,2,0.0148,-0.036,0.0636,0.277
+"deit - mbv2 (preentrenado, 50 %)",H3,binary_f1,E3/deit_pre/0.5,E3/mbv2_pre/0.5,2,2,0.0217,-0.0195,0.0644,0.1595
+in_leaf gradcam: cnn_cbam - cnn,H4,in_leaf_gradcam-gradcam,E1/cnn_cbam_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.0357,-0.0501,-0.0218,1.0
+in_leaf gradcam: mbv2_cbam - mbv2,H4,in_leaf_gradcam-gradcam,E1/mbv2_cbam_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.0257,-0.0319,-0.0197,1.0
+in_leaf rollout deit_scratch - gradcam cnn,H4,in_leaf_rollout-gradcam,E1/deit_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.2364,-0.2601,-0.2127,1.0
+in_leaf rollout deit_pre - gradcam mbv2,H4,in_leaf_rollout-gradcam,E1/deit_pre/1.0,E1/mbv2_pre/1.0,5,5,-0.1554,-0.1691,-0.1411,1.0
+in_leaf cbam_last cnn_cbam - gradcam cnn,H4,in_leaf_cbam_last-gradcam,E1/cnn_cbam_scratch/1.0,E1/cnn_scratch/1.0,5,5,-0.2498,-0.2702,-0.2288,1.0
