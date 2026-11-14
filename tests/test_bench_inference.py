@@ -55,7 +55,7 @@ def test_guard_passes_with_all_69_runs(tmp_path, monkeypatch):
 def test_guard_refuses_on_battery_and_live_queue(tmp_path, monkeypatch):
     monkeypatch.setattr(bench, "queue_alive", lambda pid_file: True)
     monkeypatch.setattr(bench, "power_status", lambda: {"ac_power": False, "power_plan": "x"})
-    with pytest.raises(SystemExit, match="batería") as err:
+    with pytest.raises(SystemExit, match="alimentación de red") as err:
         bench.check_ready(tmp_path, force=False)
     assert "sigue corriendo" in str(err.value)
 

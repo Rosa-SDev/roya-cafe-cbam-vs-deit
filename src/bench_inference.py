@@ -17,10 +17,10 @@ sin lectura de imágenes ni preprocesamiento. cuDNN se usa en modo benchmark
 Protecciones (se saltan con --force):
 - No arranca si hay una cola de entrenamiento en curso (logs/cola_local.pid) o
   si falta alguna de las 69 corridas, para no medir con la GPU ocupada.
-- En Windows exige alimentación de red (no batería) y registra el plan de
-  energía activo.
+- En Windows exige alimentación de red constante y registra el estado de
+  alimentación en el CSV.
 
-Salidas: OUT/inferencia_rtx3050.csv (datos crudos con GPU, versiones y energía)
+Salidas: OUT/inferencia_rtx3050.csv (datos crudos con GPU, versiones y alimentación)
 y OUT/tabla_inferencia.{csv,tex}.
 """
 from __future__ import annotations
@@ -62,7 +62,7 @@ def queue_alive(pid_file: Path) -> bool:
 
 
 def power_status() -> dict:
-    """Estado de energía en Windows: conectado a la red y plan activo."""
+    """Estado de alimentación en Windows (red o batería), para registrarlo con cada medición."""
     if sys.platform != "win32":
         return {"ac_power": None, "power_plan": None}
     import ctypes
@@ -89,7 +89,7 @@ def check_ready(results_root: Path, force: bool) -> None:
         problems.append(f"faltan {len(missing)} de las {len(expected)} corridas (p. ej. {missing[0]})")
     power = power_status()
     if power["ac_power"] is False:
-        problems.append("el equipo está con batería; conéctalo a la red")
+        problems.append("no hay alimentación de red constante")
     if problems and not force:
         raise SystemExit("No se lanza el benchmark: " + "; ".join(problems) + ". (--force para ignorar)")
 

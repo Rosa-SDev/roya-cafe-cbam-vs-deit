@@ -192,7 +192,7 @@ Implementación:
 - Cada JSON guarda `env.gpu` y `env.torch` (p. ej. `2.15.0+cu132`); `aggregate.py` deriva la versión de CUDA del sufijo `+cuXYZ`. El código actual guarda además `env.cuda` y `env.cudnn`.
 - `report.table_train_times` filtra E1 por nombre de GPU ("RTX 3050") y **falla** si aparece una semilla distinta de 0–3, para no mezclar GPU por accidente.
 - `python -m src.bench_inference` genera `results/tablas/inferencia_rtx3050.csv` y `tabla_inferencia.{csv,tex}`. No arranca mientras haya un entrenamiento en curso ni si falta alguna de las 69 corridas, para no medir con la GPU ocupada.
-- **Energía:** la cola local corrió con el portátil conectado al cargador y el plan de energía de Windows "Equilibrado" (GUID 381b4222-f694-41f0-9685-ff5bb260df2e). El benchmark de inferencia exige estar conectado al cargador y guarda el plan activo en cada fila del CSV (`ac_power`, `power_plan`) para comprobar que fue el mismo.
+- **Condición de medición:** los tiempos se midieron en la RTX 3050 con alimentación de red constante y sin otros entrenamientos en curso. El benchmark de inferencia comprueba ambas condiciones antes de empezar y registra el estado de alimentación en cada fila del CSV (`ac_power`).
 - El tiempo de inferencia que cada corrida guarda en su JSON (`timing.inference`) depende de la GPU donde corrió y no se usa en el artículo.
 
 ## 7. Interpretabilidad (H4)
