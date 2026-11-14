@@ -25,3 +25,11 @@ checkpoints/
 # Resultados de pruebas locales
 results/debug*/
 results_local/
+
+# Configuración local de herramientas del editor (no se versiona)
+[Cc][Ll][Aa][Uu][Dd][Ee].md
+[Cc][Ll][Aa][Uu][Dd][Ee].local.md
+.[Cc][Ll][Aa][Uu][Dd][Ee]/
+AGENTS.md
+.cursor/
+.aider*
